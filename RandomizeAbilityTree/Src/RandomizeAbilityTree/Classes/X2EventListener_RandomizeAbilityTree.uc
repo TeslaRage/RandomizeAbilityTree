@@ -127,76 +127,6 @@ static function EventListenerReturn RandomizeAbilityTreeUnitRankUpListener(Objec
 
 	UnitState.AbilityTree = AbilityTree;
 
-	// if (UnitState != none && UnitState.GetRank() == 1 &&  ConfigIndex != INDEX_NONE)
-	// {
-	//	 AbilityTree = UnitState.AbilityTree;
-	//	 UnitMaxRank = UnitState.GetSoldierClassTemplate().GetMaxConfiguredRank();
-
-	//	 AffectedRows = default.arrAffectedSoldierClasses[ConfigIndex].Rows;
-	//	 RanksToKeep = default.arrAffectedSoldierClasses[ConfigIndex].RanksToKeep;
-
-	//	 ImmovableAbilities = GetImmovableAbilities(AbilityTree, UnitMaxRank, AffectedRows);
-
-	//	 foreach ImmovableAbilities(ImmovableAbilityName)
-	//	 {
-	//		 `LOG("Immovable: " $ImmovableAbilityName, default.bLog, 'RandomClassTree');
-	//	 }
-
-	//	 // Swapping rank by rank
-	//	 for (RankIndex = 0; RankIndex < UnitMaxRank; RankIndex++)
-	//	 {
-	//		 if (RankIndex == 0) continue; // Skip Squaddie
-	//		 if (RanksToKeep.Find(RankIndex) != INDEX_NONE) continue; // These are the ones we don't want to touch			
-
-	//		 // Swap row by row
-	//		 for (RowIndex = 0; RowIndex < AffectedRows; RowIndex++)
-	//		 {
-	//			 // Determine which rank to swap with				
-	//			 RankIndexToTake = `SYNC_RAND_STATIC(UnitMaxRank - 1) + 1; // Do a +1 here so we retain squaddie abilities
-	//			 if (RankIndexToTake >= UnitMaxRank) RankIndexToTake = UnitMaxRank;
-	//			 `LOG("RankIndexToTake: " $RankIndexToTake, default.bLog, 'RandomClassTree');
-
-	//			 // If the rank is forbidden, then we need to re-roll
-	//			 LoopLimiter = 0;
-	//			 while (RanksToKeep.Find(RankIndexToTake) != INDEX_NONE || RankIndex == RankIndexToTake)
-	//			 {
-	//				 `LOG("RankIndexToTake is forbidden: " $RankIndexToTake, default.bLog, 'RandomClassTree');
-	//				 RankIndexToTake = `SYNC_RAND_STATIC(UnitMaxRank - 1) + 1; // Do a +1 here so we retain squaddie abilities
-	//				 if (RankIndexToTake >= UnitMaxRank) RankIndexToTake = UnitMaxRank;
-	//				 `LOG("Revised RankIndexToTake: " $RankIndexToTake, default.bLog, 'RandomClassTree');
-
-	//				 // For safety: from testing it has never taken more than 10 tries
-	//				 LoopLimiter++;
-	//				 if (LoopLimiter >= 10)
-	//				 {
-	//					 `LOG("LoopLimiter: " $LoopLimiter, default.bLog, 'RandomClassTree');
-	//					 RankIndexToTake = RankIndex; // Swaps with itself bahaha
-	//					 break;
-	//				 }
-	//			 }
-
-	//			 // Some abilities have prereq abilities, so the ability itself, and its prereq will not be moved
-	//			 if (ImmovableAbilities.Find(AbilityTree[RankIndex].Abilities[RowIndex].AbilityName) != INDEX_NONE || 
-	//				 ImmovableAbilities.Find(AbilityTree[RankIndexToTake].Abilities[RowIndex].AbilityName) != INDEX_NONE
-	//				 )
-	//			 {
-	//				 `LOG(AbilityTree[RankIndex].Abilities[RowIndex].AbilityName $" is immovable due to PreReqs", default.bLog, 'RandomClassTree');
-	//				 continue;
-	//			 }
-
-	//			 // Swap 2 abilities within the same row
-	//			 AbilityToSwapOne = AbilityTree[RankIndex].Abilities[RowIndex];
-	//			 AbilityToSwapTwo = AbilityTree[RankIndexToTake].Abilities[RowIndex];
-	//			 AbilityTree[RankIndex].Abilities[RowIndex] = AbilityToSwapTwo;
-	//			 AbilityTree[RankIndexToTake].Abilities[RowIndex] = AbilityToSwapOne;
-
-	//			 `LOG("Rank" @RankIndex @"Row" @RowIndex @": Swapping" @AbilityToSwapOne.AbilityName @"with" @AbilityToSwapTwo.AbilityName, default.bLog, 'RandomClassTree');
-	//		 }
-	//	 }
-
-	//	 UnitState.AbilityTree = AbilityTree;
-	// }
-
 	return ELR_NoInterrupt;
 }
 
@@ -241,19 +171,4 @@ static function array<name> GetImmovableAbilities(array<SoldierRankAbilities> Ab
 	}
 
 	return ImmovableAbilities;
-}
-
-// NOT USED
-// Wanted to implement a way to randomize in a way that its not possible to get Col skill at Corporal
-// But this is practically not appealing without a proper random deck for each row
-static function bool IsWithinItsBlock(int RankIndex, int RankIndexToTake)
-{
-	local int RankDiff;
-
-	RankDiff = RankIndexToTake - RankIndex;
-	if (RankDiff < 0) RankDiff *= -1;
-
-	if (RankDiff > 2) return false;
-
-	return true;
 }
