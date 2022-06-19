@@ -1,6 +1,6 @@
 class X2EventListener_RandomizeAbilityTree extends X2EventListener config(RandomizeAbilityTree);
 
-struct SoldierClassAndRow
+struct SoldierClassData
 {
 	var name SoldierClass;
 	var int Rows;
@@ -14,8 +14,7 @@ struct AbilityPoolData
 	var SoldierClassAbilityType Ability;
 };
 
-var config bool bLog;
-var config array<SoldierClassAndRow> arrAffectedSoldierClasses;
+var config array<SoldierClassData> arrAffectedSoldierClasses;
 
 static function array<X2DataTemplate> CreateTemplates()
 {
@@ -45,11 +44,9 @@ static function EventListenerReturn RandomizeAbilityTreeUnitRankUpListener(Objec
 	local array<AbilityPoolData> AbilityPool;
 	local array<SoldierClassAbilityType> AbilityPoolRow, UsedAbilityPoolRow;
 	local AbilityPoolData AbilityPoolEntry;
-	local SoldierClassAbilityType AbilityToSwapOne, AbilityToSwapTwo;
-	local int RankIndex, UnitMaxRank, RankIndexToTake, ConfigIndex, AffectedRows, RowIndex, LoopLimiter, Rand;
+	local int RankIndex, UnitMaxRank, ConfigIndex, AffectedRows, RowIndex, Rand;
 	local array<int> RanksToKeep;
-	local array<name> ImmovableAbilities;
-	local name ImmovableAbilityName;
+	local array<name> ImmovableAbilities;	
 
 	UnitState = XComGameState_Unit(EventData);
 	if (UnitState == none) return ELR_NoInterrupt;
@@ -57,16 +54,19 @@ static function EventListenerReturn RandomizeAbilityTreeUnitRankUpListener(Objec
 	// Grab the right unit state
 	UnitState = XComGameState_Unit(NewGameState.ModifyStateObject(class'XComGameState_Unit', UnitState.ObjectID));
 
+	// Grab unit state information that we need (because AbilityTree is always changed)
+	if (UnitState != none)
+	{
+		AbilityTree = UnitState.AbilityTree;
+	}
+
 	// Grab the config applicable for this unit
 	ConfigIndex = default.arrAffectedSoldierClasses.Find('SoldierClass', UnitState.GetSoldierClassTemplateName());
-
-	`LOG("UnitState.GetRank(): " $UnitState.GetRank(), default.bLog, 'RandomClassTree');
 
 	// If Unit is available, ranking up to squaddie, and we do have a config for it
 	if (UnitState != none && UnitState.GetRank() == 1 &&  ConfigIndex != INDEX_NONE)
 	{
 		// Grab all the information we need
-		AbilityTree = UnitState.AbilityTree;
 		UnitMaxRank = UnitState.GetSoldierClassTemplate().GetMaxConfiguredRank();
 		AffectedRows = default.arrAffectedSoldierClasses[ConfigIndex].Rows;
 		RanksToKeep = default.arrAffectedSoldierClasses[ConfigIndex].RanksToKeep;
@@ -125,7 +125,10 @@ static function EventListenerReturn RandomizeAbilityTreeUnitRankUpListener(Objec
 		}
 	}
 
-	UnitState.AbilityTree = AbilityTree;
+	if (UnitState != none)
+	{
+		UnitState.AbilityTree = AbilityTree;
+	}
 
 	return ELR_NoInterrupt;
 }
